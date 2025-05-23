@@ -79,3 +79,24 @@
 
   ^fn
 ) $native
+
+(%addr %ptr
+  ^ptr       255 binary-and ^addr     mem !
+  ^ptr  8 >> 255 binary-and ^addr 1 + mem !
+  ^ptr 16 >> 255 binary-and ^addr 2 + mem !
+  ^ptr 24 >> 255 binary-and ^addr 3 + mem !
+  ^ptr 32 >> 255 binary-and ^addr 4 + mem !
+  ^ptr 40 >> 255 binary-and ^addr 5 + mem !
+  ^ptr 48 >> 255 binary-and ^addr 6 + mem !
+  ^ptr 56 >> 255 binary-and ^addr 7 + mem !
+) $ptr!
+
+(%wenv %wcomp
+  ; victim object
+  () %fn
+
+  ^wcomp o>p ^fn o>p  8 + ptr!
+  ^wenv  o>p ^fn o>p 16 + ptr!
+
+  ^fn
+) $wrap-env
