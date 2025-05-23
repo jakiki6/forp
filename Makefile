@@ -1,0 +1,19 @@
+ifdef DEBUG
+CFLAGS := -Og -g -DDEBUG=1
+else
+CFLAGS := -O2 -g -DDEBUG=0
+endif
+
+all: main
+	./main
+
+main: main.c boot.h
+	gcc $(CFLAGS) -Wall -Wextra -Werror -o $@ $<
+
+boot.h: src/base.fp src/main.fp
+	cat $^ | sed 's/;.*//' | sed '/^$$/d' | sed ':a;N;$$!ba;s/\n/ /g' | sed ':a;s/  / /;ta' | sed ':a;s/( /(/g;ta' | sed ':a;s/ )/)/g;ta' | sed 's/^/(/' | sed 's/$$/)/' | xxd -i > $@
+
+clean:
+	rm -f main boot.h
+
+.PHONY: all clean
