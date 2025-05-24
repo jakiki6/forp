@@ -150,6 +150,9 @@
   ^addr 1 + ^buf @  8 << binary-or
 ) $w@
 
+(%o %v ^v o>p ^o o>p  8 + mem q!) $car!
+(%o %v ^v o>p ^o o>p 16 + mem q!) $cdr!
+
 (%wenv %wcomp
   ; victim object
   () %fn
