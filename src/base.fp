@@ -104,23 +104,58 @@
   endif
 ) $native
 
-(%addr %ptr
-  ^ptr       255 binary-and ^addr     mem !
-  ^ptr  8 >> 255 binary-and ^addr 1 + mem !
-  ^ptr 16 >> 255 binary-and ^addr 2 + mem !
-  ^ptr 24 >> 255 binary-and ^addr 3 + mem !
-  ^ptr 32 >> 255 binary-and ^addr 4 + mem !
-  ^ptr 40 >> 255 binary-and ^addr 5 + mem !
-  ^ptr 48 >> 255 binary-and ^addr 6 + mem !
-  ^ptr 56 >> 255 binary-and ^addr 7 + mem !
-) $ptr!
+(%buf %addr %v
+  ^v       255 binary-and ^addr     buf !
+  ^v  8 >> 255 binary-and ^addr 1 + buf !
+  ^v 16 >> 255 binary-and ^addr 2 + buf !
+  ^v 24 >> 255 binary-and ^addr 3 + buf !
+  ^v 32 >> 255 binary-and ^addr 4 + buf !
+  ^v 40 >> 255 binary-and ^addr 5 + buf !
+  ^v 48 >> 255 binary-and ^addr 6 + buf !
+  ^v 56 >> 255 binary-and ^addr 7 + buf !
+) $q!
+
+(%buf %addr %v
+  ^v       255 binary-and ^addr     buf !
+  ^v  8 >> 255 binary-and ^addr 1 + buf !
+  ^v 16 >> 255 binary-and ^addr 2 + buf !
+  ^v 24 >> 255 binary-and ^addr 3 + buf !
+) $d!
+
+(%buf %addr %v
+  ^v       255 binary-and ^addr     buf !
+  ^v  8 >> 255 binary-and ^addr 1 + buf !
+) $w!
+
+(%buf %addr
+  ^addr     ^buf @
+  ^addr 1 + ^buf @  8 << binary-or
+  ^addr 2 + ^buf @ 16 << binary-or
+  ^addr 3 + ^buf @ 24 << binary-or
+  ^addr 4 + ^buf @ 32 << binary-or
+  ^addr 5 + ^buf @ 40 << binary-or
+  ^addr 6 + ^buf @ 48 << binary-or
+  ^addr 7 + ^buf @ 56 << binary-or
+) $q@
+
+(%buf %addr
+  ^addr     ^buf @
+  ^addr 1 + ^buf @  8 << binary-or
+  ^addr 2 + ^buf @ 16 << binary-or
+  ^addr 3 + ^buf @ 24 << binary-or
+) $d@
+
+(%buf %addr
+  ^addr     ^buf @
+  ^addr 1 + ^buf @  8 << binary-or
+) $w@
 
 (%wenv %wcomp
   ; victim object
   () %fn
 
-  ^wcomp o>p ^fn o>p  8 + ptr!
-  ^wenv  o>p ^fn o>p 16 + ptr!
+  ^wcomp o>p ^fn o>p  8 + mem q!
+  ^wenv  o>p ^fn o>p 16 + mem q!
 
   ^fn
 ) $wrap-env
