@@ -14,6 +14,13 @@ boot.h: src/base.fp src/main.fp
 	cat $^ | sed 's/;.*//' | sed '/^$$/d' | sed ':a;N;$$!ba;s/\n/ /g' | sed ':a;s/  / /;ta' | sed ':a;s/( /(/g;ta' | sed ':a;s/ )/)/g;ta' | sed 's/^/(/' | sed 's/$$/)/' | xxd -i > $@
 
 clean:
-	rm -f main boot.h
+	rm -f main boot.h perf.data perf.data.old
+
+valgrind: main
+	valgrind ./main
+
+perf: main
+	perf record ./main
+	perf report
 
 .PHONY: all clean
