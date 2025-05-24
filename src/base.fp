@@ -1,18 +1,29 @@
+; stack manipulation
 (%x ^x ^x) $dup
 (%_) $drop
 (%x %y ^x ^y) $swap
 (%a %b %c ^b ^a ^c) $rot
+
+; some basic constructs
 (%x (^x)) $const
 (%x x) $force
-(%f (%x (^x x) f) dup force) $Y (%g (^g Y)) $rec
+
+; recursion
+(%f (%x (^x x) f) dup force) $Y
+(%g (^g Y)) $rec
+
+; if shenanigans
 ((%t %c drop c $c () ^t ^c cswap drop force) #f) $if
 ((%t %c drop c $c ^t () ^c cswap drop force) #t) $unless
 (%t %c %u drop (%f %t force %c ^f ^t ^c cswap drop force) ^c ^t ^u cswap) $else
 (%a %b %c %d ^c ^b ^a d) $endif
+
+; equality stuff
 (%c #t #f c cswap drop) $not
 (eq not) $neq
 (#f eq) $null?
 
+; binary logic from nand
 ^nand $binary-nand
 (nand dup nand) $binary-and
 (dup nand swap dup nand nand) $binary-or
