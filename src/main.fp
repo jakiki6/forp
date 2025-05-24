@@ -1,9 +1,13 @@
 '(72 101 108 108 111 32 119 111 114 108 100 33 10) sputc
 
 (0 1 (%self %a %b %n
-  if (^n 0 eq) ^b (
-    ^n 1 - ^a ^b + ^b self
-  ) endif
+  if (^n 0 eq)
+    ^b
+  else
+    (
+      ^n 1 - ^a ^b + ^b self
+    )
+  endif
 ) rec force) $fibonacci
 
 100 1 range (drop
