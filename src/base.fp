@@ -61,23 +61,25 @@
 0 -1 p>b const $mem
 
 (%code
-  ^code list-len alloc %buf
+  if (^code list-len not) () const (
+    ^code list-len alloc %buf
 
-  ; make buffer persist
-  4 ^buf o>p 1 + mem !
+    ; make buffer persist
+    4 ^buf o>p 1 + mem !
 
-  ; victim object
-  ^buf b>p %fn
-  ^fn o>p %fptr
+    ; victim object
+    ^buf b>p %fn
+    ^fn o>p %fptr
 
-  ; make PRIM
-  2 ^fptr mem !
+    ; make PRIM
+    2 ^fptr mem !
 
-  0 %i
-  ^code
-  (^i ^buf ! ^i 1 + $i) each
+    0 %i
+    ^code
+    (^i ^buf ! ^i 1 + $i) each
 
-  ^fn
+    ^fn
+  ) endif
 ) $native
 
 (%addr %ptr
