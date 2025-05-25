@@ -13,7 +13,7 @@ uint8_t boot_blob[] = {
     #define DEBUG 0
 #endif
 
-#define ARENA_SIZE 1 << 24
+#define ARENA_SIZE (1 << 24)
 #define ARENA_THRESHOLD 1
 #define GC_LIFETIME 1000000
 
@@ -114,14 +114,13 @@ struct obj_arena {
 };
 obj_arena_t *arena_head;
 
-obj_arena_t *arena_new(size_t size) {
-    obj_arena_t *arena = malloc(sizeof(obj_arena_t) + sizeof(obj_t) * size);
+obj_arena_t *arena_new() {
+    obj_arena_t *arena = malloc(sizeof(obj_arena_t) + sizeof(obj_t) * ARENA_SIZE);
     arena->next = NULL;
-    arena->size = size;
-    arena->free = size;
+    arena->free = ARENA_SIZE;
     arena->last = 0;
 
-    for (size_t i = 0; i < size; i++) {
+    for (size_t i = 0; i < ARENA_SIZE; i++) {
         arena->objs[i].type = TYPE_FREE;
     }
 
@@ -130,19 +129,19 @@ obj_arena_t *arena_new(size_t size) {
 
 obj_t *arena_alloc() {
     if (arena_head == NULL) {
-        arena_head = arena_new(ARENA_SIZE);
+        arena_head = arena_new();
     }
 
     obj_arena_t *head = arena_head;
     while (head) {
         if (head->free) {
-            for (size_t i = 0; i < head->size; i++) {
-                size_t index = i + head->last >= head->size ? i + head->last - head->size : i + head->last;
+            for (size_t i = 0; i < ARENA_SIZE; i++) {
+                size_t index = (i + head->last) & (ARENA_SIZE - 1);
 
                 if (head->objs[index].type == TYPE_FREE) {
                     head->free--;
                     head->objs[index].type--;
-                    head->last = index + 1 >= head->size ? index + 1 - head->size : index + 1;
+                    head->last = (index + 1) & (ARENA_SIZE - 1);
                     return &head->objs[index];
                 }
             }
@@ -151,7 +150,7 @@ obj_t *arena_alloc() {
         head = head->next;
     }
 
-    head = arena_new(ARENA_SIZE);
+    head = arena_new();
     head->next = arena_head;
     arena_head = head;
 
@@ -163,8 +162,8 @@ obj_t *arena_alloc() {
 void arena_free(obj_t *obj) {
     obj_arena_t *head = arena_head;
     while (head) {
-        if (head->free < head->size) {
-            if (obj >= &head->objs[0] && obj <= &head->objs[head->size - 1]) {
+        if (head->free < ARENA_SIZE) {
+            if (obj >= &head->objs[0] && obj <= &head->objs[ARENA_SIZE - 1]) {
                 obj->type = TYPE_FREE;
                 head->free++;
 
@@ -181,7 +180,7 @@ void arena_cleanup() {
     obj_arena_t *head = arena_head;
     size_t empty_count = 0;
     while (head) {
-        if (head->free == head->size) {
+        if (head->free == ARENA_SIZE) {
             empty_count++;
 
             if (empty_count > ARENA_THRESHOLD) {
