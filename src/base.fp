@@ -78,12 +78,26 @@
 
 0 -1 p>b const $mem
 
+(%buf %i %l
+  (
+    ^l car ^i ^buf !
+    ^i 1 + $i
+    ^l cdr dup $l
+  ) rep
+) $blit-list
+
+(%l
+  ^l list-len alloc %buf
+  ^l 0 ^buf blit-list
+  ^buf
+) $l>b
+
 (%code
   if (^code list-len not)
     () const
   else
     (
-      ^code list-len alloc %buf
+      ^code l>b $buf
 
       ; make buffer persist
       4 ^buf o>p 1 + mem !
@@ -94,10 +108,6 @@
 
       ; make PRIM
       2 ^fptr mem !
-
-      0 %i
-      ^code
-      (^i ^buf ! ^i 1 + $i) each
 
       ^fn
     )
