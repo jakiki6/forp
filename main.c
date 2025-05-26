@@ -604,14 +604,19 @@ void p_alloc(obj_t **env, state_t *state) {
 
     if (!IS_INT(a))
         goto err;
-    if (a->num <= 0)
+    if (a->num < 0)
         goto err;
 
-    char *buf = malloc(a->num);
-    if (buf == NULL)
-        goto err;
+    char *buf;
+    if (a->num == 0) {
+        buf = NULL;
+    } else {
+        buf = malloc(a->num);
+        if (buf == NULL)
+            goto err;
 
-    mprotect((void *) (((uint64_t) buf) & ~0x0fff), (a->num >> 12) + 2, PROT_READ | PROT_WRITE | PROT_EXEC);
+        mprotect((void *) (((uint64_t) buf) & ~0x0fff), (a->num >> 12) + 2, PROT_READ | PROT_WRITE | PROT_EXEC);
+    }
 
     push(mkbuf(buf, a->num, false));
     return;

