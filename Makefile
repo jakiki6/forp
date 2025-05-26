@@ -5,7 +5,7 @@ CFLAGS := -O2 -g -DDEBUG=0
 endif
 
 all: main
-	./main
+	./main | ndisasm -b 64 -
 
 main: main.c boot.h
 	gcc $(CFLAGS) -Wall -Wextra -Werror -o $@ $<

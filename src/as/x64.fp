@@ -25,8 +25,15 @@
 '(46) as-const $as-x64-cs
 '(54) as-const $as-x64-ss
 '(62) as-const $as-x64-ds
-'(38) as-const $ax-x64-es
-'(100) as-const $ax-x64-fs
-'(101) as-const $ax-x64-gs
-'(102) as-const $ax-x64-oso
-'(103) as-const $ax-x64-aso
+'(38) as-const $as-x64-es
+'(100) as-const $as-x64-fs
+'(101) as-const $as-x64-gs
+'(102) as-const $as-x64-oso
+'(103) as-const $as-x64-aso
+
+(64 binary-or swap 1 << binary-or swap 2 << binary-or swap 4 << binary-or #f swap cons l>b join) $as-x64-rex
+
+0 alloc as-x64-ret
+
+$buf
+^buf bs 0 range (^buf @ putc) each
