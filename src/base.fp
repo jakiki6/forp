@@ -20,6 +20,8 @@
 
 ; equality stuff
 (%c #t #f c cswap drop) $not
+(%a %b #f ^a ^b cswap drop) $and
+(not swap not and not) $or
 (eq not) $neq
 (#f eq) $null?
 
@@ -91,6 +93,70 @@
   ^l 0 ^buf blit-list
   ^buf
 ) $l>b
+
+(%count %dest-offset %src-offset %dest %src
+  if (^count) (
+    (
+      ^src-offset ^src @
+      ^dest-offset ^dest !
+
+      ^src-offset 1 + $src-offset
+      ^dest-offset 1 + $dest-offset
+      ^count 1 - $count
+      ^count
+    ) rep
+  ) endif
+) $buf-copy
+
+(%src
+  #f %dest
+  if (^src) (
+    (
+      ^dest ^src car cons $dest
+      ^src cdr $src
+      ^src
+    ) rep
+  ) endif
+  ^dest
+) $rev
+
+(%b %a
+  #f %res
+  ^a type %t
+
+  if (^t ^b type eq ^a null? not and) (
+      if (^t 3 eq) (
+        (
+          ^res ^a car cons $res
+          ^a cdr $a
+          ^a
+        ) rep
+
+        (
+          ^res ^b car cons $res
+          ^b cdr $b
+          ^b
+        ) rep
+
+        ^res rev $res
+      ) endif
+
+      if (^t 5 eq) (
+        if (^a bs not) (
+          ^a ^b $a $b
+        ) endif
+
+        if (^a bs) (
+          ^a bs ^b bs + alloc $res
+
+          ^a ^res 0 0 ^a bs buf-copy
+          ^b ^res 0 ^a bs ^b bs buf-copy
+        ) endif
+      ) endif
+  ) endif
+
+  ^res
+) $join
 
 (%code
   if (^code list-len not)
