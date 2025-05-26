@@ -1,3 +1,4 @@
+; https://wiki.osdev.org/X86-64_Instruction_Encoding#Registers
 '(
   (al 0) (ax 0) (eax 0) (rax 0) (es 0) (cr0 0)
   (cl 1) (cx 1) (ecx 1) (rcx 1) (cs 1)
@@ -21,3 +22,11 @@
 '(240) as-const $as-x64-lock
 '(242) as-const dup $as-x64-repne $as-x64-repnz
 '(243) as-const dup dup $as-x64-rep $as-x64-repne $as-x64-repnz
+'(46) as-const $as-x64-cs
+'(54) as-const $as-x64-ss
+'(62) as-const $as-x64-ds
+'(38) as-const $ax-x64-es
+'(100) as-const $ax-x64-fs
+'(101) as-const $ax-x64-gs
+'(102) as-const $ax-x64-oso
+'(103) as-const $ax-x64-aso
