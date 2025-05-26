@@ -10,7 +10,7 @@ all: main
 main: main.c boot.h
 	gcc $(CFLAGS) -Wall -Wextra -Werror -o $@ $<
 
-boot.h: src/base.fp src/as/x64.fp src/main.fp
+boot.h: src/base.fp src/as/as.fp src/as/x64.fp src/main.fp
 	cat $^ | sed 's/;.*//' | sed '/^$$/d' | sed ':a;N;$$!ba;s/\n/ /g' | sed ':a;s/  / /;ta' | sed ':a;s/( /(/g;ta' | sed ':a;s/ )/)/g;ta' | sed 's/^/(/' | sed 's/$$/)/' | xxd -i > $@
 
 clean:

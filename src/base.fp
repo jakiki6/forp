@@ -234,3 +234,11 @@
 
   ^fn
 ) $wrap-env
+
+(%list %key
+  #f %res
+
+  ^list (%p if (^p car ^key eq) (^p cdr car $res) endif) each
+
+  ^res
+) %assoc-ref
