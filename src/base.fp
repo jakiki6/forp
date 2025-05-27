@@ -94,6 +94,12 @@
   ^buf
 ) $l>b
 
+(%n
+  1 alloc %buf
+  ^n 0 ^buf !
+  ^buf
+) $n>b
+
 (%count %dest-offset %src-offset %dest %src
   if (^count) (
     (

@@ -20,14 +20,14 @@ uint8_t boot_blob[] = {
 #define UNUSED(x) (void) x
 #define error_obj(msg, o)                                                                                                      \
     do {                                                                                                                       \
-        printf("FATAL ERROR: %s: ", msg);                                                                                      \
+        fprintf(stderr, "FATAL ERROR: %s: ", msg);                                                                             \
         print_obj(o);                                                                                                          \
         putc('\n', stdout);                                                                                                    \
         abort();                                                                                                               \
     } while (0);
 #define error(msg)                                                                                                             \
     do {                                                                                                                       \
-        printf("FATAL ERROR: %s\n", msg);                                                                                      \
+        fprintf(stderr, "FATAL ERROR: %s\n", msg);                                                                             \
         abort();                                                                                                               \
     } while (0);
 

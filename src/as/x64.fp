@@ -18,22 +18,74 @@
   (r15l 15) (r15w 15) (r15d 15) (r15 15)
 ) $as-x64-register-table
 
-'(195) as-const $as-x64-ret
-'(240) as-const $as-x64-lock
-'(242) as-const dup $as-x64-repne $as-x64-repnz
-'(243) as-const dup dup $as-x64-rep $as-x64-repne $as-x64-repnz
-'(46) as-const $as-x64-cs
-'(54) as-const $as-x64-ss
-'(62) as-const $as-x64-ds
-'(38) as-const $as-x64-es
-'(100) as-const $as-x64-fs
-'(101) as-const $as-x64-gs
-'(102) as-const $as-x64-oso
-'(103) as-const $as-x64-aso
+195 as-1const $as-x64-ret
+240 as-1const $as-x64-lock
+242 as-1const dup $as-x64-repne $as-x64-repnz
+243 as-1const dup dup $as-x64-rep $as-x64-repne $as-x64-repnz
+46 as-1const $as-x64-cs
+54 as-1const $as-x64-ss
+62 as-1const $as-x64-ds
+38 as-1const $as-x64-es
+100 as-1const $as-x64-fs
+101 as-1const $as-x64-gs
+102 as-1const $as-x64-oso
+103 as-1const $as-x64-aso
 
-(64 binary-or swap 1 << binary-or swap 2 << binary-or swap 4 << binary-or #f swap cons l>b join) $as-x64-rex
+(%opcode %mode
+  0 %rex
+  0 %modrm
+  #f %sib
+  #f %disp
+  #f %imm
+
+  #f %disp-s
+  #f %disp-f
+  #f %imm-s
+  #f %imm-f
+
+  if (^mode 'r/m eq) (
+    ^as-x64-register-table assoc-ref %reg
+    ^as-x64-register-table assoc-ref %rm
+
+    if (^reg 3 >>) (
+      ; we need rex.w
+
+      ^rex 72 binary-or $rex
+    ) endif
+
+    ^reg 7 binary-and 3 << 192 binary-or ^rm binary-or $modrm
+  ) endif
+
+  0 alloc %res
+
+  if (^rex 64 binary-and) (
+    ^res ^rex n>b join $res
+  ) endif
+
+  ^res ^opcode n>b join ^modrm n>b join $res
+
+  if (^sib #f neq) (
+    ^res ^sib n>b join $res
+  ) endif
+
+  if (^disp #f neq) (
+    ^disp-s alloc %buf
+    ^disp ^buf disp-f
+    ^res ^buf join $res
+  ) endif
+
+  if (^imm #f neq) (
+    ^imm-s alloc %buf
+    ^imm ^buf imm-s
+    ^res ^buf join $res
+  ) endif
+
+  ^res
+) $as-x64-build
 
 0 alloc as-x64-ret
+
+'bl 'cl 'r/m 0 as-x64-build join
 
 $buf
 ^buf bs 0 range (^buf @ putc) each
