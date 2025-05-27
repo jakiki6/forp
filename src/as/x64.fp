@@ -4,10 +4,10 @@
   (cl 1) (cx 1) (ecx 1) (rcx 1) (cs 1)
   (dl 2) (dx 2) (edx 2) (rdx 2) (ss 2) (cr2 2)
   (bl 3) (bx 3) (ebx 3) (rbx 3) (ds 3) (cr3 3)
-  (ah 4) (spl 4) (sp 4) (esp 4) (rsp 4) (fs 4) (cr4 4)
-  (ch 5) (bpl 5) (bp 5) (ebp 5) (rbp 5) (gs 5)
-  (dh 6) (sil 6) (si 6) (esi 6) (rsi 6)
-  (bh 7) (dil 7) (di 7) (edi 7) (rdi 7)
+  (ah 4) (spl 20) (sp 4) (esp 4) (rsp 4) (fs 4) (cr4 4)
+  (ch 5) (bpl 21) (bp 5) (ebp 5) (rbp 5) (gs 5)
+  (dh 6) (sil 22) (si 6) (esi 6) (rsi 6)
+  (bh 7) (dil 23) (di 7) (edi 7) (rdi 7)
   (r8l 8) (r8w 8) (r8d 8) (r8 8) (cr8 8)
   (r9l 9) (r9w 9) (r9d 9) (r9 9)
   (r10l 10) (r10w 10) (r10d 10) (r10 10)
@@ -47,10 +47,22 @@
     ^as-x64-register-table assoc-ref %reg
     ^as-x64-register-table assoc-ref %rm
 
-    if (^reg 3 >>) (
-      ; we need rex.w
+    if (^reg 4 >>) (
+      ^rex 64 binary-or $rex
+      ^reg 15 binary-and $reg
+    ) endif
 
+    if (^rm 4 >>) (
+      ^rex 64 binary-or $rex
+      ^rm 15 binary-and $rm
+    ) endif
+
+    if (^reg 3 >>) (
       ^rex 72 binary-or $rex
+    ) endif
+
+    if (^rm 3 >>) (
+      ^rex 65 binary-or $rex
     ) endif
 
     ^reg 7 binary-and 3 << 192 binary-or ^rm binary-or $modrm
@@ -85,7 +97,7 @@
 
 0 alloc as-x64-ret
 
-'bl 'cl 'r/m 0 as-x64-build join
+'bl 'sil 'r/m 0 as-x64-build join
 
 $buf
 ^buf bs 0 range (^buf @ putc) each
