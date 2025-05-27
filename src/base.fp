@@ -24,6 +24,12 @@
 (not swap not and not) $or
 (eq not) $neq
 (#f eq) $null?
+(63 >>) $<0?
+(<0? not) $>=0?
+(- <0?) $<
+(swap <) $>
+(> not) $<=
+(< not) $>=
 
 ; binary logic from nand
 ^nand $binary-nand
@@ -248,3 +254,11 @@
 
   ^res
 ) %assoc-ref
+
+(%list %key
+  #f %res
+
+  ^list (%p if (^p ^key eq) (#t $res) endif) each
+
+  ^res
+) $in?
