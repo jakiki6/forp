@@ -43,10 +43,15 @@
   #f %imm-s
   #f %imm-f
 
-  if (^mode 'r/m eq) (
-    ^as-x64-register-table assoc-ref %reg
-    ^as-x64-register-table assoc-ref %rm
+  #f %reg
+  #f %rm
 
+  ; all cases of r/m consume these so let's factor them out
+  if (^mode 'r/m eq ^mode '[r/m] eq or) (
+    ^as-x64-register-table assoc-ref $reg
+    ^as-x64-register-table assoc-ref $rm
+
+    ; this will be a special 8 bit high register like sil or spl
     if (^reg 4 >>) (
       ^rex 64 binary-or $rex
       ^reg 15 binary-and $reg
@@ -57,17 +62,33 @@
       ^rm 15 binary-and $rm
     ) endif
 
+    ; this will be an AMD64 register like r8 or r15
     if (^reg 3 >>) (
       ^rex 72 binary-or $rex
+      ^reg 7 binary-and $reg
     ) endif
 
     if (^rm 3 >>) (
       ^rex 65 binary-or $rex
+      ^rm 7 binary-and $rm
     ) endif
-
-    ^reg 7 binary-and 3 << 192 binary-or ^rm binary-or $modrm
   ) endif
 
+  ; now we actually check the mode
+  if (^mode 'r/m eq) (
+    ^reg 3 << 192 binary-or ^rm binary-or $modrm
+  ) endif
+
+  if (^mode '[r/m] eq) (
+    ; sp, bp, r12 and r13 are handled using SIB
+    if (^rm dup 4 eq swap 5 eq or) (
+      panic
+    ) endif
+
+    ^reg 3 << ^rm binary-or $modrm
+  ) endif
+
+  ;;; now we assemble the final instruction
   0 alloc %res
 
   if (^rex 64 binary-and) (
@@ -98,6 +119,7 @@
 0 alloc as-x64-ret
 
 'bl 'sil 'r/m 0 as-x64-build join
+'bl 'al '[r/m] 0 as-x64-build join
 
 $buf
 ^buf bs 0 range (^buf @ putc) each
