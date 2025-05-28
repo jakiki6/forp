@@ -227,14 +227,12 @@
   join
 ) $as-x64-add-ri
 
-;;; test
-as-begin
-  -1 'rax as-x64-add-ri
-  105 'rcx as-x64-add-ri
+;  -1 'rax as-x64-add-ri
+;  105 'rcx as-x64-add-ri
 
-  6969 'r9d as-x64-add-ri
+;  6969 'r9d as-x64-add-ri
 
-  32 'sil as-x64-add-ri
+;  32 'sil as-x64-add-ri
 
 ;  'bl 'sil 'r 0 as-x64-build join
 ;  'rbx 'al '[r] 0 as-x64-build join
@@ -245,7 +243,7 @@ as-begin
 
 ;  18 2 'eax 'ebx 'sib 'bl '[r+d] 0 as-x64-build join
 
-as-x64-ret
+; as-x64-ret
 
-$buf
-^buf bs 0 range (^buf @ putc) each
+; $buf
+; ^buf bs 0 range (^buf @ putc) each

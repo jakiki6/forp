@@ -1,5 +1,7 @@
 ; stack manipulation
 (%x ^x ^x) $dup
+(%x %y ^y ^x ^y ^x) $2dup
+(%x %y ^y ^x ^y) $over
 (%_) $drop
 (%x %y ^x ^y) $swap
 (%a %b %c ^b ^a ^c) $rot
@@ -39,6 +41,9 @@
 (binary-or binary-not) $binary-nor
 (%a %b ^a ^b nand $c ^a ^c nand ^b ^c nand nand) $binary-xor
 (binary-xor binary-not) $binary-xnor
+
+; math? more like meth amirit
+(2dup u/ u* -) $umod
 
 ; range (end start -- list)
 (1 - %end 1 - %start

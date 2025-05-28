@@ -58,7 +58,7 @@ typedef struct obj obj_t;
 typedef struct state state_t;
 void print_obj(obj_t *o);
 
-__attribute__((packed)) struct obj {
+struct obj {
     uint8_t type;
     uint8_t flags;
     uint16_t padding1;
@@ -73,6 +73,7 @@ __attribute__((packed)) struct obj {
 
         // integer
         int64_t num;
+        uint64_t unum;
 
         // primitive
         void (*func)(obj_t **env, state_t *state);
@@ -83,7 +84,7 @@ __attribute__((packed)) struct obj {
             obj_t *second;
         };
     };
-};
+} __attribute__((packed));
 
 struct state {
     obj_t *stack;
@@ -818,6 +819,57 @@ err:
     push(mknil());
 }
 
+void p_mod(obj_t **env, state_t *state) {
+    UNUSED(env);
+    UNUSED(state);
+
+    obj_t *a = pop();
+    obj_t *b = pop();
+
+    if (!IS_INT(a) || !IS_INT(b))
+        goto err;
+
+    push(mkint(a->num < 0 ? (b->num % a->num + (b->num > 0 ? a->num : 0)) : (b->num % a->num + (b->num < 0 ? a->num : 0))));
+    return;
+
+err:
+    push(mknil());
+}
+
+void p_umul(obj_t **env, state_t *state) {
+    UNUSED(env);
+    UNUSED(state);
+
+    obj_t *a = pop();
+    obj_t *b = pop();
+
+    if (!IS_INT(a) || !IS_INT(b))
+        goto err;
+
+    push(mkint(b->unum * a->unum));
+    return;
+
+err:
+    push(mknil());
+}
+
+void p_udiv(obj_t **env, state_t *state) {
+    UNUSED(env);
+    UNUSED(state);
+
+    obj_t *a = pop();
+    obj_t *b = pop();
+
+    if (!IS_INT(a) || !IS_INT(b))
+        goto err;
+
+    push(mkint(b->unum / a->unum));
+    return;
+
+err:
+    push(mknil());
+}
+
 void p_nand(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
@@ -828,7 +880,7 @@ void p_nand(obj_t **env, state_t *state) {
     if (!IS_INT(a) || !IS_INT(b))
         goto err;
 
-    push(mkint(~(((uint64_t) b->num) & ((uint64_t) a->num))));
+    push(mkint(~(a->unum & b->unum)));
     return;
 
 err:
@@ -845,7 +897,7 @@ void p_lshift(obj_t **env, state_t *state) {
     if (!IS_INT(a) || !IS_INT(b))
         goto err;
 
-    push(mkint(((uint64_t) b->num) << a->num));
+    push(mkint(b->unum << a->unum));
     return;
 
 err:
@@ -862,7 +914,7 @@ void p_rshift(obj_t **env, state_t *state) {
     if (!IS_INT(a) || !IS_INT(b))
         goto err;
 
-    push(mkint(((uint64_t) b->num) >> a->num));
+   push(mkint(b->unum >> a->unum)); 
     return;
 
 err:
@@ -1110,6 +1162,9 @@ obj_t *initial_env() {
     env = put_env(env, mkatom("-"), mkprim(&p_sub));
     env = put_env(env, mkatom("*"), mkprim(&p_mul));
     env = put_env(env, mkatom("/"), mkprim(&p_div));
+    env = put_env(env, mkatom("mod"), mkprim(&p_mod));
+    env = put_env(env, mkatom("u*"), mkprim(&p_mul));
+    env = put_env(env, mkatom("u/"), mkprim(&p_udiv));
     env = put_env(env, mkatom("nand"), mkprim(&p_nand));
     env = put_env(env, mkatom("<<"), mkprim(&p_lshift));
     env = put_env(env, mkatom(">>"), mkprim(&p_rshift));
