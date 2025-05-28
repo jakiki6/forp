@@ -658,10 +658,10 @@ void p_buf_poke(obj_t **env, state_t *state) {
         goto err;
 
     size_t index = b->num >= 0 ? (size_t) b->num : c->len + b->num;
-    if (a->num < 0 || a->num > 0xff || index >= c->len)
+    if (index >= c->len)
         goto err;
 
-    c->data[index] = a->num;
+    c->data[index] = a->num & 0xff;
 
 err:
     return;

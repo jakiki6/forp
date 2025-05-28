@@ -100,12 +100,6 @@
   ^buf
 ) $l>b
 
-(%n
-  1 alloc %buf
-  ^n 0 ^buf !
-  ^buf
-) $n>b
-
 (%count %dest-offset %src-offset %dest %src
   if (^count) (
     (
@@ -236,6 +230,11 @@
 
 (%o %v ^v o>p ^o o>p  8 + mem q!) $car!
 (%o %v ^v o>p ^o o>p 16 + mem q!) $cdr!
+
+(%n 1 alloc %buf ^n 0 ^buf  ! ^buf) $nb>b
+(%n 2 alloc %buf ^n 0 ^buf w! ^buf) $nw>b
+(%n 4 alloc %buf ^n 0 ^buf d! ^buf) $nd>b
+(%n 8 alloc %buf ^n 0 ^buf q! ^buf) $nq>b
 
 (%wenv %wcomp
   ; victim object
