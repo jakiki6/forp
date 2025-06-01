@@ -37,6 +37,13 @@
   (r15b 0) (r15w 1) (r15d 2) (r15 3)
 ) $as-x64-modes
 
+'(
+  (1 0)
+  (2 1)
+  (4 2)
+  (8 3)
+) $as-x64-radicies
+
 195 as-1const $as-x64-ret
 240 as-1const $as-x64-lock
 242 as-1const dup $as-x64-repne $as-x64-repnz
@@ -68,7 +75,19 @@
   if (^orm 'sib eq) (
     ^as-x64-registers assoc-ref %base
     ^as-x64-registers assoc-ref %index
-    6 << ^index 3 << binary-or ^base binary-or $sib
+    ^as-x64-radicies assoc-ref %scale
+
+    if (^base 3 >>) (
+      ^rex 65 binary-or $rex
+      ^base 7 binary-and $base
+    ) endif
+
+    if (^index 3 >>) (
+      ^rex 66 binary-or $rex
+      ^index 7 binary-and $index
+    ) endif
+
+    ^scale 6 << ^index 3 << binary-or ^base binary-or $sib
   ) endif
 
   ; special case for registers like sil
@@ -92,7 +111,7 @@
     ^reg 3 << 192 binary-or ^rm binary-or $modrm
   ) endif
 
-  if (^mode '[r] eq) (
+  if (^mode '[] eq) (
     ; sp and r12 are handeled by SIB 
     if (^rm dup 4 eq swap 5 eq or ^orm 'sib neq and) (
       ^rm 32 binary-or $sib
@@ -101,7 +120,7 @@
     ^reg 3 << ^rm binary-or $modrm
   ) endif
 
-  if (^mode '[r+d] eq) (
+  if (^mode '[+d] eq) (
     $disp
 
     ; sp is handeled by SIB
@@ -157,72 +176,135 @@
 (%v 102 nb>b join 5 nb>b join ^v nd>b join) $as-x64-add-eax
 (%v 72 nb>b join 5 nb>b join ^v nd>b join) $as-x64-add-rax
 
-(%r %v
-  ; ax is special
-  if (^r 'al eq) (
-    4 nb>b ^v nb>b join
-  ) endif
+(%ri-func %base
+  (%r
+      ; 8 bits
+      if (^r ^as-x64-modes assoc-ref 0 eq) (
+        ^r swap ^base 2 + as-x64-build
+      ) endif
 
-  if (^r 'ax eq) (
-    if (^v as-disp8?) (
-      102 nb>b ^r 'al 'r 131 as-x64-build join ^v nb>b join
-    ) else (
-      102 nb>b 5 nb>b join ^v nw>b join
+      ; 16 bits
+      if (^r ^as-x64-modes assoc-ref 1 eq) (
+        ^r swap ^base 3 + as-x64-build 102 nb>b swap join
+      ) endif
+
+      ; 32 bits
+      if (^r ^as-x64-modes assoc-ref 2 eq) (
+        ^r swap ^base 3 + as-x64-build
+      ) endif
+
+      ; 64 bits
+      if (^r ^as-x64-modes assoc-ref 3 eq) (
+        ^r swap ^base 3 + as-x64-build 72 nb>b swap join
+      ) endif
+
+      ; 8 bits but also special
+      if (^r ^as-x64-modes assoc-ref 4 eq) (
+        ^r swap ^base 2 + as-x64-build
+      ) endif
+
+      join
+  )
+
+  (%r
+      ; 8 bits
+      if (^r ^as-x64-modes assoc-ref 0 eq) (
+        ^r swap ^base as-x64-build
+      ) endif
+
+      ; 16 bits
+      if (^r ^as-x64-modes assoc-ref 1 eq) (
+        ^r swap ^base 1 + as-x64-build 102 nb>b swap join
+      ) endif
+
+      ; 32 bits
+      if (^r ^as-x64-modes assoc-ref 2 eq) (
+        ^r swap ^base 1 + as-x64-build
+      ) endif
+
+      ; 64 bits
+      if (^r ^as-x64-modes assoc-ref 3 eq) (
+        ^r swap ^base 1 + as-x64-build 72 nb>b swap join
+      ) endif
+
+      ; 8 bits but also special
+      if (^r ^as-x64-modes assoc-ref 4 eq) (
+        ^r swap ^base as-x64-build
+      ) endif
+
+      join
+  )
+
+  (%r %v
+    ; ax is special
+    if (^r 'al eq) (
+      ^base 4 + nb>b ^v nb>b join
     ) endif
-  ) endif
 
-  if (^r 'eax eq) (
-    if (^v as-disp8?) (
-      ^r 'al 'r 131 as-x64-build ^v nb>b join
-    ) else (
-      5 nb>b ^v nd>b join
+    if (^r 'ax eq) (
+      if (^v as-disp8?) (
+        102 nb>b ^r ^ri-func 'r 131 as-x64-build join ^v nb>b join
+      ) else (
+        102 nb>b ^base 4 + nb>b join ^v nw>b join
+      ) endif
     ) endif
-  ) endif
 
-  if (^r 'rax eq) (
-    if (^v as-disp8?) (
-      72 nb>b ^r 'al 'r 131 as-x64-build join ^v nb>b join
-    ) else (
-      72 nb>b 5 nb>b join ^v nd>b join
+    if (^r 'eax eq) (
+      if (^v as-disp8?) (
+        ^r ^ri-func 'r 131 as-x64-build ^v nb>b join
+      ) else (
+        ^base 5 + nb>b ^v nd>b join
+      ) endif
     ) endif
-  ) endif
 
-  ; 8 bits
-  if (^r ^as-x64-modes assoc-ref 0 eq ^r 'al neq and) (
-    ^r 'al 'r 128 as-x64-build ^v nb>b join
-  ) endif
-
-  ; 16 bits
-  if (^r ^as-x64-modes assoc-ref 1 eq ^r 'ax neq and) (
-    if (^v as-disp8?) (
-      102 nb>b ^r 'al 'r 131 as-x64-build join ^v nb>b join
-    ) else (
-      102 nb>b ^r 'al 'r 129 as-x64-build join ^v nw>b join
+    if (^r 'rax eq) (
+      if (^v as-disp8?) (
+        72 nb>b ^r ^ri-func 'r 131 as-x64-build join ^v nb>b join
+      ) else (
+        72 nb>b ^base 5 + nb>b join ^v nd>b join
+      ) endif
     ) endif
-  ) endif
 
-  ; 32 bits
-  if (^r ^as-x64-modes assoc-ref 2 eq ^r 'eax neq and) (
-    if (^v as-disp8?) (
-      ^r 'al 'r 131 as-x64-build ^v nb>b join
-    ) else (
-      ^r 'al 'r 129 as-x64-build join ^v nd>b
+    ; 8 bits
+    if (^r ^as-x64-modes assoc-ref 0 eq ^r 'al neq and) (
+      ^r ^ri-func 'r 128 as-x64-build ^v nb>b join
     ) endif
-  ) endif
 
-  ; 64 bits
-  if (^r ^as-x64-modes assoc-ref 3 eq ^r 'rax neq and) (
-    if (^v as-disp8?) (
-      72 nb>b ^r 'al 'r 131 as-x64-build join ^v nb>b join
-    ) else (
-      72 nb>b ^r 'al 'r 129 as-x64-build join ^v nd>b join
+    ; 16 bits
+    if (^r ^as-x64-modes assoc-ref 1 eq ^r 'ax neq and) (
+      if (^v as-disp8?) (
+        102 nb>b ^r ^ri-func 'r 131 as-x64-build join ^v nb>b join
+      ) else (
+        102 nb>b ^r ^ri-func 'r 129 as-x64-build join ^v nw>b join
+      ) endif
     ) endif
-  ) endif
 
-  ; 8 bits but also special
-  if (^r ^as-x64-modes assoc-ref 4 eq) (
-    ^r 'al 'r 128 as-x64-build ^v nb>b join
-  ) endif
+    ; 32 bits
+    if (^r ^as-x64-modes assoc-ref 2 eq ^r 'eax neq and) (
+      if (^v as-disp8?) (
+        ^r ^ri-func 'r 131 as-x64-build ^v nb>b join
+      ) else (
+        ^r ^ri-func 'r 129 as-x64-build join ^v nd>b
+      ) endif
+    ) endif
 
-  join
-) $as-x64-add-ri
+    ; 64 bits
+    if (^r ^as-x64-modes assoc-ref 3 eq ^r 'rax neq and) (
+      if (^v as-disp8?) (
+        72 nb>b ^r ^ri-func 'r 131 as-x64-build join ^v nb>b join
+      ) else (
+        72 nb>b ^r ^ri-func 'r 129 as-x64-build join ^v nd>b join
+      ) endif
+    ) endif
+
+    ; 8 bits but also special
+    if (^r ^as-x64-modes assoc-ref 4 eq) (
+      ^r ^ri-func 'r 128 as-x64-build ^v nb>b join
+    ) endif
+
+    join
+  )
+) $as-x64-simpleop
+
+0 'al as-x64-simpleop $as-x64-add-ri $as-x64-add-mr $as-x64-add-rm
+0 'ah as-x64-simpleop $as-x64-sub-ri $as-x64-sub-mr $as-x64-sub-rm

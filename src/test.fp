@@ -31,3 +31,11 @@
 0 alloc -1 'rax as-x64-add-ri '(72 131 192 255) test-assertbeq
 0 alloc 105 'rcx as-x64-add-ri '(72 131 193 105) test-assertbeq
 0 alloc 6969 'r9d as-x64-add-ri '(65 129 193 57 27 0 0) test-assertbeq
+0 alloc 69 'sil as-x64-add-ri '(64 128 198 69) test-assertbeq
+
+0 alloc 'rsp '[] 'al as-x64-add-mr '(0 4 36) test-assertbeq
+0 alloc 'r8 '[] 'eax as-x64-add-rm '(65 3 0) test-assertbeq
+0 alloc 69 'rax '[+d] 'al as-x64-add-rm '(2 64 69) test-assertbeq
+0 alloc 4 'rcx 'r8 'sib '[] 'sil as-x64-add-rm '(65 2 52 136) test-assertbeq
+
+0 alloc 69 8 'r9 'rcx 'sib '[+d] 'dx as-x64-sub-rm '(102 66 3 84 201 69) test-assertbeq
