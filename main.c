@@ -121,9 +121,7 @@ obj_arena_t *arena_new() {
     arena->free = ARENA_SIZE;
     arena->last = 0;
 
-    for (size_t i = 0; i < ARENA_SIZE; i++) {
-        arena->objs[i].type = TYPE_FREE;
-    }
+    memset(&arena->objs, 0xff, sizeof(obj_t) * ARENA_SIZE);
 
     return arena;
 }
