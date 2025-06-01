@@ -226,24 +226,3 @@
 
   join
 ) $as-x64-add-ri
-
-;  -1 'rax as-x64-add-ri
-;  105 'rcx as-x64-add-ri
-
-;  6969 'r9d as-x64-add-ri
-
-;  32 'sil as-x64-add-ri
-
-;  'bl 'sil 'r 0 as-x64-build join
-;  'rbx 'al '[r] 0 as-x64-build join
-;  'rsp 'al '[r] 0 as-x64-build join
-;  'r12 'al '[r] 0 as-x64-build join
-
-;  18 'r15 'bl '[r+d] 0 as-x64-build join
-
-;  18 2 'eax 'ebx 'sib 'bl '[r+d] 0 as-x64-build join
-
-; as-x64-ret
-
-; $buf
-; ^buf bs 0 range (^buf @ putc) each

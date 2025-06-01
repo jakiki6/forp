@@ -29,3 +29,5 @@
 '(120 54 52 32 97 115 115 101 109 98 108 101 114) test-unit
 
 0 alloc -1 'rax as-x64-add-ri '(72 131 192 255) test-assertbeq
+0 alloc 105 'rcx as-x64-add-ri '(72 131 193 105) test-assertbeq
+0 alloc 6969 'r9d as-x64-add-ri '(65 129 193 57 27 0 0) test-assertbeq
