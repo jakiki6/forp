@@ -1,5 +1,6 @@
 main
 tools/encode
 boot.h
+boot.fp
 vgcore.*
 perf.data*
