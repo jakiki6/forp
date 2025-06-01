@@ -7,7 +7,7 @@ endif
 CC := clang
 
 all: main tools/encode
-	./main #| ndisasm -b 64 -
+	./main
 
 main: main.c boot.h
 	$(CC) $(CFLAGS) -Wall -Wextra -Werror -o $@ $<
