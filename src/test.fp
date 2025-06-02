@@ -38,4 +38,7 @@
 0 alloc 69 'rax '[+d] 'al as-x64-add-rm '(2 64 69) test-assertbeq
 0 alloc 4 'rcx 'r8 'sib '[] 'sil as-x64-add-rm '(65 2 52 136) test-assertbeq
 
-0 alloc 69 8 'r9 'rcx 'sib '[+d] 'dx as-x64-sub-rm '(102 66 3 84 201 69) test-assertbeq
+0 alloc 'rsp '[] 'al as-x64-sub-rm '(42 4 36) test-assertbeq
+0 alloc 69 8 'r9 'rcx 'sib '[+d] 'dx as-x64-sub-rm '(102 66 43 84 201 69) test-assertbeq
+
+0 alloc 4 'r8 'rcx 'sib '[] 'rax as-x64-and-rm '(74 35 4 129) test-assertbeq

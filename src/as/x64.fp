@@ -58,6 +58,7 @@
 103 as-1const $as-x64-aso
 
 (%opcode %mode
+  #f %size-override
   0 %rex
   0 %modrm
   #f %sib
@@ -106,6 +107,16 @@
     ^rm 7 binary-and $rm
   ) endif
 
+  ; rex extension
+  if (^oreg as-x64-modes assoc-ref 3 eq) (
+    ^rex 72 binary-or $rex
+  ) endif
+
+  ; size override
+  if (^oreg as-x64-modes assoc-ref 1 eq) (
+    #t $size-override
+  ) endif
+
   ; now we actually check the mode
   if (^mode 'r eq) (
     ^reg 3 << 192 binary-or ^rm binary-or $modrm
@@ -146,6 +157,10 @@
   ;;; now we assemble the final instruction
   0 alloc %res
 
+  if (^size-override) (
+    102 nb>b join
+  ) endif
+
   if (^rex 64 binary-and) (
     ^res ^rex nb>b join $res
   ) endif
@@ -185,7 +200,7 @@
 
       ; 16 bits
       if (^r ^as-x64-modes assoc-ref 1 eq) (
-        ^r swap ^base 3 + as-x64-build 102 nb>b swap join
+        ^r swap ^base 3 + as-x64-build
       ) endif
 
       ; 32 bits
@@ -195,7 +210,7 @@
 
       ; 64 bits
       if (^r ^as-x64-modes assoc-ref 3 eq) (
-        ^r swap ^base 3 + as-x64-build 72 nb>b swap join
+        ^r swap ^base 3 + as-x64-build
       ) endif
 
       ; 8 bits but also special
@@ -214,7 +229,7 @@
 
       ; 16 bits
       if (^r ^as-x64-modes assoc-ref 1 eq) (
-        ^r swap ^base 1 + as-x64-build 102 nb>b swap join
+        ^r swap ^base 1 + as-x64-build
       ) endif
 
       ; 32 bits
@@ -224,7 +239,7 @@
 
       ; 64 bits
       if (^r ^as-x64-modes assoc-ref 3 eq) (
-        ^r swap ^base 1 + as-x64-build 72 nb>b swap join
+        ^r swap ^base 1 + as-x64-build
       ) endif
 
       ; 8 bits but also special
@@ -243,9 +258,9 @@
 
     if (^r 'ax eq) (
       if (^v as-disp8?) (
-        102 nb>b ^r ^ri-func 'r 131 as-x64-build join ^v nb>b join
+        102 nb>b ^r ^ri-func 'r 131 as-x64-build ^v nb>b join join
       ) else (
-        102 nb>b ^base 4 + nb>b join ^v nw>b join
+        102 nb>b ^base 4 + nb>b ^v nw>b join join
       ) endif
     ) endif
 
@@ -259,9 +274,9 @@
 
     if (^r 'rax eq) (
       if (^v as-disp8?) (
-        72 nb>b ^r ^ri-func 'r 131 as-x64-build join ^v nb>b join
+        72 nb>b ^r ^ri-func 'r 131 as-x64-build ^v nb>b join join
       ) else (
-        72 nb>b ^base 5 + nb>b join ^v nd>b join
+        72 nb>b ^base 5 + nb>b ^v nd>b join join
       ) endif
     ) endif
 
@@ -273,9 +288,9 @@
     ; 16 bits
     if (^r ^as-x64-modes assoc-ref 1 eq ^r 'ax neq and) (
       if (^v as-disp8?) (
-        102 nb>b ^r ^ri-func 'r 131 as-x64-build join ^v nb>b join
+        102 nb>b ^r ^ri-func 'r 131 as-x64-build ^v nb>b join join
       ) else (
-        102 nb>b ^r ^ri-func 'r 129 as-x64-build join ^v nw>b join
+        102 nb>b ^r ^ri-func 'r 129 as-x64-build ^v nw>b join join
       ) endif
     ) endif
 
@@ -284,16 +299,16 @@
       if (^v as-disp8?) (
         ^r ^ri-func 'r 131 as-x64-build ^v nb>b join
       ) else (
-        ^r ^ri-func 'r 129 as-x64-build join ^v nd>b
+        ^r ^ri-func 'r 129 as-x64-build ^v nd>b
       ) endif
     ) endif
 
     ; 64 bits
     if (^r ^as-x64-modes assoc-ref 3 eq ^r 'rax neq and) (
       if (^v as-disp8?) (
-        72 nb>b ^r ^ri-func 'r 131 as-x64-build join ^v nb>b join
+        72 nb>b ^r ^ri-func 'r 131 as-x64-build ^v nb>b join join
       ) else (
-        72 nb>b ^r ^ri-func 'r 129 as-x64-build join ^v nd>b join
+        72 nb>b ^r ^ri-func 'r 129 as-x64-build ^v nd>b join join
       ) endif
     ) endif
 
@@ -307,4 +322,7 @@
 ) $as-x64-simpleop
 
 0 'al as-x64-simpleop $as-x64-add-ri $as-x64-add-mr $as-x64-add-rm
-0 'ah as-x64-simpleop $as-x64-sub-ri $as-x64-sub-mr $as-x64-sub-rm
+40 'ah as-x64-simpleop $as-x64-sub-ri $as-x64-sub-mr $as-x64-sub-rm
+32 'dl as-x64-simpleop $as-x64-and-ri $as-x64-and-mr $as-x64-and-rm
+8 'cl as-x64-simpleop $ax-x64-or-ri $as-x64-or-mr $as-x64-or-rm
+48 'ch as-x64-simpleop $ax-x64-xor-ri $as-x64-xor-mr $as-x64-xor-rm
