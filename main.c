@@ -107,7 +107,6 @@ state_t *state;
 typedef struct obj_arena obj_arena_t;
 struct obj_arena {
     obj_arena_t *next;
-    size_t size;
     size_t free;
     size_t last;
 
@@ -184,9 +183,9 @@ void arena_cleanup() {
 
             if (empty_count > ARENA_THRESHOLD) {
                 *next = head->next;
-                head = head->next;
 
                 free(head);
+                head = *next;
 
                 continue;
             }
@@ -243,11 +242,11 @@ void gc() {
     obj_arena_t *head = arena_head;
 
     while (head) {
-        if (head->free < head->size) {
-            for (size_t i = 0; i < head->size; i++) {
+        if (head->free < ARENA_SIZE) {
+            for (size_t i = 0; i < ARENA_SIZE; i++) {
                 if (head->objs[i].type != TYPE_FREE) {
                     if (!(head->objs[i].flags & (FLAG_REACHED | FLAG_PERSIST))) {
-                        bool should_break = head->size - head->free == 1;
+                        bool should_break = ARENA_SIZE - head->free == 1;
 
                         gc_free(&head->objs[i]);
 
@@ -1191,7 +1190,7 @@ int main() {
     while (arena_head) {
         obj_arena_t *next = arena_head->next;
 
-        for (size_t i = 0; i < arena_head->size; i++) {
+        for (size_t i = 0; i < ARENA_SIZE; i++) {
             if (arena_head->objs[i].type == TYPE_ATOM ||
                 (arena_head->objs[i].type == TYPE_BUF && !(arena_head->objs[i].flags & FLAG_NO_FREE))) {
                 free(arena_head->objs[i].data);
