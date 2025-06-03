@@ -809,7 +809,7 @@ void p_rshift(obj_t **env, state_t *state) {
     if (!IS_INT(a) || !IS_INT(b))
         goto err;
 
-   push(mkint(b->unum >> a->unum)); 
+    push(mkint(b->unum >> a->unum));
     return;
 
 err:
