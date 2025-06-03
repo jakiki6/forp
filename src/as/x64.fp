@@ -200,11 +200,6 @@
   ^res
 ) $as-x64-build
 
-(%v 4 nb>b join ^v nb>b join) $as-x64-add-al
-(%v 5 nb>b join ^v nw>b join) $as-x64-add-ax
-(%v 102 nb>b join 5 nb>b join ^v nd>b join) $as-x64-add-eax
-(%v 72 nb>b join 5 nb>b join ^v nd>b join) $as-x64-add-rax
-
 (%ri-func %base
   (%r
       ; 8 bits
@@ -264,13 +259,13 @@
       join
   )
 
-  (%r %v
+  (%r %mode %v
     ; ax is special
     if (^r 'al eq) (
       ^base 4 + nb>b ^v nb>b join
     ) endif
 
-    if (^r 'ax eq) (
+    if (^r 'ax eq ^mode 'r eq and) (
       if (^v as-disp8?) (
         102 nb>b ^r ^ri-func 'r 131 as-x64-build ^v nb>b join join
       ) else (
@@ -278,7 +273,7 @@
       ) endif
     ) endif
 
-    if (^r 'eax eq) (
+    if (^r 'eax eq ^mode 'r eq and) (
       if (^v as-disp8?) (
         ^r ^ri-func 'r 131 as-x64-build ^v nb>b join
       ) else (
@@ -286,7 +281,7 @@
       ) endif
     ) endif
 
-    if (^r 'rax eq) (
+    if (^r 'rax eq ^mode 'r eq and) (
       if (^v as-disp8?) (
         72 nb>b ^r ^ri-func 'r 131 as-x64-build ^v nb>b join join
       ) else (
@@ -296,47 +291,64 @@
 
     ; 8 bits
     if (^r ^as-x64-modes assoc-ref 0 eq ^r 'al neq and) (
-      ^r ^ri-func 'r 128 as-x64-build ^v nb>b join
+      ^r ^ri-func ^mode 128 as-x64-build ^v nb>b join
     ) endif
 
     ; 16 bits
     if (^r ^as-x64-modes assoc-ref 1 eq ^r 'ax neq and) (
       if (^v as-disp8?) (
-        102 nb>b ^r ^ri-func 'r 131 as-x64-build ^v nb>b join join
+        102 nb>b ^r ^ri-func ^mode 131 as-x64-build ^v nb>b join join
       ) else (
-        102 nb>b ^r ^ri-func 'r 129 as-x64-build ^v nw>b join join
+        102 nb>b ^r ^ri-func ^mode 129 as-x64-build ^v nw>b join join
       ) endif
     ) endif
 
     ; 32 bits
     if (^r ^as-x64-modes assoc-ref 2 eq ^r 'eax neq and) (
       if (^v as-disp8?) (
-        ^r ^ri-func 'r 131 as-x64-build ^v nb>b join
+        ^r ^ri-func ^mode 131 as-x64-build ^v nb>b join
       ) else (
-        ^r ^ri-func 'r 129 as-x64-build ^v nd>b
+        ^r ^ri-func ^mode 129 as-x64-build ^v nd>b
       ) endif
     ) endif
 
     ; 64 bits
     if (^r ^as-x64-modes assoc-ref 3 eq ^r 'rax neq and) (
       if (^v as-disp8?) (
-        72 nb>b ^r ^ri-func 'r 131 as-x64-build ^v nb>b join join
+        72 nb>b ^r ^ri-func ^mode 131 as-x64-build ^v nb>b join join
       ) else (
-        72 nb>b ^r ^ri-func 'r 129 as-x64-build ^v nd>b join join
+        72 nb>b ^r ^ri-func ^mode 129 as-x64-build ^v nd>b join join
       ) endif
     ) endif
 
     ; 8 bits but also special
     if (^r ^as-x64-modes assoc-ref 4 eq) (
-      ^r ^ri-func 'r 128 as-x64-build ^v nb>b join
+      ^r ^ri-func ^mode 128 as-x64-build ^v nb>b join
     ) endif
 
     join
   )
+
+  dup %t
+  (%r %v
+    ^v 'r ^r t
+  )
 ) $as-x64-simpleop
 
-0 'al as-x64-simpleop $as-x64-add-ri $as-x64-add-mr $as-x64-add-rm
-40 'ah as-x64-simpleop $as-x64-sub-ri $as-x64-sub-mr $as-x64-sub-rm
-32 'dl as-x64-simpleop $as-x64-and-ri $as-x64-and-mr $as-x64-and-rm
-8 'cl as-x64-simpleop $ax-x64-or-ri $as-x64-or-mr $as-x64-or-rm
-48 'ch as-x64-simpleop $ax-x64-xor-ri $as-x64-xor-mr $as-x64-xor-rm
+0 'al as-x64-simpleop $as-x64-add-ri $as-x64-add-mi $as-x64-add-mr $as-x64-add-rm
+40 'ah as-x64-simpleop $as-x64-sub-ri $as-x64-sub-mi $as-x64-sub-mr $as-x64-sub-rm
+32 'dl as-x64-simpleop $as-x64-and-ri $as-x64-and-mi $as-x64-and-mr $as-x64-and-rm
+8 'cl as-x64-simpleop $as-x64-or-ri $as-x64-or-mi $as-x64-or-mr $as-x64-or-rm
+48 'ch as-x64-simpleop $as-x64-xor-ri $as-x64-xor-mi $as-x64-xor-mr $as-x64-xor-rm
+
+(
+
+) $as-x64-mov-mr
+
+(
+
+) $as-x64-mov-rm
+
+(
+
+) $as-x64-mi
