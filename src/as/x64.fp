@@ -5,7 +5,7 @@
   (dl 2) (dx 2) (edx 2) (rdx 2) (ss 2) (cr2 2)
   (bl 3) (bx 3) (ebx 3) (rbx 3) (ds 3) (cr3 3)
   (ah 4) (spl 4) (sp 4) (esp 4) (rsp 4) (fs 4) (cr4 4) (sib 4) (none 4)
-  (ch 5) (bpl 5) (bp 5) (ebp 5) (rbp 5) (gs 5) (addr 5)
+  (ch 5) (bpl 5) (bp 5) (ebp 5) (rbp 5) (gs 5) (addr 5) (zero 5)
   (dh 6) (sil 6) (si 6) (esi 6) (rsi 6)
   (bh 7) (dil 7) (di 7) (edi 7) (rdi 7)
   (r8b 8) (r8w 8) (r8d 8) (r8 8) (cr8 8)
@@ -70,11 +70,13 @@
   #f %imm-s
   #f %imm-f
 
+  #f %base-reg
+
   dup %oreg ^as-x64-registers assoc-ref %reg
   dup %orm ^as-x64-registers assoc-ref %rm
 
   if (^orm 'sib eq) (
-    ^as-x64-registers assoc-ref %base
+    dup $base-reg ^as-x64-registers assoc-ref %base
     ^as-x64-registers assoc-ref %index
     ^as-x64-radicies assoc-ref %scale
 
@@ -139,18 +141,24 @@
       36 $sib
     ) endif
 
-    if (^disp as-disp8?) (
-      ; disp8 is enough
-      1 $disp-s
-      ^! $disp-f
-
-      ^reg 3 << 64 binary-or ^rm binary-or $modrm
-    ) else (
-      ; we need disp32
+    if (^base-reg 'zero eq) (
+      ^reg 3 << ^rm binary-or $modrm
       4 $disp-s
-      ^!d $disp-f
+      ^d! $disp-f
+    ) else (
+      if (^disp as-disp8?) (
+        ; disp8 is enough
+        1 $disp-s
+        ^! $disp-f
 
-      ^reg 3 << 128 binary-or ^rm binary-or $modrm
+        ^reg 3 << 64 binary-or ^rm binary-or $modrm
+      ) else (
+        ; we need disp32
+        4 $disp-s
+        ^d! $disp-f
+
+        ^reg 3 << 128 binary-or ^rm binary-or $modrm
+      ) endif
     ) endif
   ) endif
 
