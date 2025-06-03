@@ -18,13 +18,6 @@ uint8_t boot_blob[] = {
 #define GC_LIFETIME 1000000
 
 #define UNUSED(x) (void) x
-#define error_obj(msg, o)                                                                                                      \
-    do {                                                                                                                       \
-        fprintf(stderr, "FATAL ERROR: %s: ", msg);                                                                             \
-        print_obj(o);                                                                                                          \
-        putc('\n', stdout);                                                                                                    \
-        abort();                                                                                                               \
-    } while (0);
 #define error(msg)                                                                                                             \
     do {                                                                                                                       \
         fprintf(stderr, "FATAL ERROR: %s\n", msg);                                                                             \
@@ -56,7 +49,6 @@ uint8_t boot_blob[] = {
 
 typedef struct obj obj_t;
 typedef struct state state_t;
-void print_obj(obj_t *o);
 
 struct obj {
     uint8_t type;
@@ -282,14 +274,14 @@ obj_t *alloc() {
 
 obj_t *car(obj_t *o) {
     if (!IS_PAIR(o) && !IS_ENV(o))
-        error_obj("car not pair", o);
+        error("car not pair");
 
     return o->first;
 }
 
 obj_t *cdr(obj_t *o) {
     if (!IS_PAIR(o) && !IS_ENV(o))
-        error_obj("cdr not pair", o);
+        error("cdr not pair");
 
     return o->second;
 }
@@ -376,7 +368,7 @@ obj_t *pop() {
 
 obj_t *find_env(obj_t *env, obj_t *key) {
     if (!IS_ATOM(key))
-        error_obj("env key isn't atom", key);
+        error("env key isn't atom");
 
     while (!IS_NIL(env)) {
         obj_t *entry = ucar(env);
@@ -385,7 +377,7 @@ obj_t *find_env(obj_t *env, obj_t *key) {
         env = ucdr(env);
     }
 
-    error_obj("cannot find in env", key);
+    error("cannot find in env");
 }
 
 obj_t *put_env(obj_t *env, obj_t *key, obj_t *val) {
@@ -499,101 +491,6 @@ void p_type(obj_t **env, state_t *state) {
     push(mkint(pop()->type));
 }
 
-void print_obj(obj_t *o) {
-    if (o == state->nil) {
-        printf("#f");
-    } else if (o == state->t) {
-        printf("#t");
-    } else {
-        switch (o->type) {
-            case TYPE_ATOM:
-                fwrite(o->data, o->len, 1, stdout);
-                break;
-
-            case TYPE_INT:
-                printf("%li", o->num);
-                break;
-
-            case TYPE_PRIM:
-                printf("<prim@%p>", o->func);
-                break;
-
-            case TYPE_PAIR:
-                putc('(', stdout);
-                print_obj(car(o));
-                o = cdr(o);
-
-                while (!IS_NIL(o)) {
-                    putc(' ', stdout);
-
-                    if (IS_PAIR(o)) {
-                        print_obj(car(o));
-                        o = cdr(o);
-                    } else {
-                        print_obj(o);
-                        break;
-                    }
-                }
-
-                putc(')', stdout);
-                break;
-
-            case TYPE_ENV:
-                printf("<env@%p ", o);
-                print_obj(car(o));
-                printf(", %p>", cdr(o));
-                break;
-
-            case TYPE_BUF:
-                putc('"', stdout);
-
-                for (size_t i = 0; i < o->len; i++) {
-                    switch (o->data[i]) {
-                        case '\n':
-                            putc('\\', stdout);
-                            putc('n', stdout);
-                            break;
-
-                        case '\r':
-                            putc('\\', stdout);
-                            putc('r', stdout);
-                            break;
-
-                        case '\t':
-                            putc('\\', stdout);
-                            putc('t', stdout);
-                            break;
-
-                        case '"':
-                        case '\\':
-                            putc('\\', stdout);
-                            __attribute__((fallthrough));
-
-                        default:
-                            putc(o->data[i], stdout);
-                            break;
-                    }
-                }
-                putc('"', stdout);
-                break;
-
-            default:
-                printf("<?%u@%p>", o->type, o);
-                break;
-        }
-    }
-}
-
-void p_print(obj_t **env, state_t *state) {
-    UNUSED(env);
-    UNUSED(state);
-
-    obj_t *a = pop();
-
-    print_obj(a);
-    printf("\n");
-}
-
 void p_alloc(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
@@ -681,7 +578,8 @@ void p_p2o(obj_t **env, state_t *state) {
     if (!IS_INT(a))
         goto err;
 
-    push((obj_t *) a->num);
+    push((obj_t *) a->unum);
+    return;
 
 err:
     push(mknil());
@@ -1144,7 +1042,6 @@ obj_t *initial_env() {
     env = put_env(env, mkatom("eq"), mkprim(&p_eq));
     env = put_env(env, mkatom("cswap"), mkprim(&p_cswap));
     env = put_env(env, mkatom("type"), mkprim(&p_type));
-    env = put_env(env, mkatom("print"), mkprim(&p_print));
     env = put_env(env, mkatom("alloc"), mkprim(&p_alloc));
     env = put_env(env, mkatom("@"), mkprim(&p_buf_peek));
     env = put_env(env, mkatom("!"), mkprim(&p_buf_poke));

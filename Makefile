@@ -15,7 +15,7 @@ main: main.c boot.h
 boot.h: boot.fp
 	cat $^ | xxd -i > $@
 
-boot.fp: src/base.fp src/as/as.fp src/as/x64.fp src/unit.fp src/test.fp
+boot.fp: src/base.fp src/print.fp src/as/as.fp src/as/x64.fp src/unit.fp src/test.fp
 	cat $^ | sed 's/;.*//' | sed '/^$$/d' | sed ':a;N;$$!ba;s/\n/ /g' | sed ':a;s/  / /;ta' | sed ':a;s/( /(/g;ta' | sed ':a;s/ )/)/g;ta' | sed 's/^/(/' | sed 's/$$/)/' > $@
 
 tools/encode: tools/encode.c
