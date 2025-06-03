@@ -87,6 +87,7 @@
   endif
 ) $list-len
 
+#f %putc
 (^putc each) $sputc
 
 0 -1 p>b const $mem

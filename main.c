@@ -824,18 +824,6 @@ void p_gc(obj_t **env, state_t *state) {
     gc();
 }
 
-void p_putc(obj_t **env, state_t *state) {
-    UNUSED(env);
-    UNUSED(state);
-
-    obj_t *a = pop();
-
-    if (IS_INT(a)) {
-        putc(a->num, stdout);
-        fflush(stdout);
-    }
-}
-
 void compute(obj_t *comp, obj_t *env);
 void p_rep(obj_t **env, state_t *state) {
     UNUSED(env);
@@ -1063,7 +1051,6 @@ obj_t *initial_env() {
     env = put_env(env, mkatom("<<"), mkprim(&p_lshift));
     env = put_env(env, mkatom(">>"), mkprim(&p_rshift));
     env = put_env(env, mkatom("gc"), mkprim(&p_gc));
-    env = put_env(env, mkatom("putc"), mkprim(&p_putc));
     env = put_env(env, mkatom("rep"), mkprim(&p_rep));
 
     env = put_env(env, mkatom("#t"), state->t);
