@@ -8,7 +8,7 @@ as-begin
   1 'rax as-x64-add-ri
   'rdx 'r 'rdx as-x64-xor-rm
   1 'rdx as-x64-add-ri
-  '(15 5) l>b join              ; syscall
+  as-x64-syscall
   89 nb>b join                  ; pop rcx
   '(72 139 57) l>b join         ; mov rdi, qword [rcx]
   '(72 139 127 16) l>b join     ; mov rdi, qword [rdi + 16]

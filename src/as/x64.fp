@@ -57,6 +57,8 @@
 102 as-1const $as-x64-oso
 103 as-1const $as-x64-aso
 
+'(15 5) as-const $as-x64-syscall
+
 (%opcode %mode
   #f %size-override
   0 %rex
