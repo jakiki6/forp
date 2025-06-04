@@ -341,12 +341,52 @@
 8 'cl as-x64-simpleop $as-x64-or-ri $as-x64-or-mi $as-x64-or-mr $as-x64-or-rm
 48 'ch as-x64-simpleop $as-x64-xor-ri $as-x64-xor-mi $as-x64-xor-mr $as-x64-xor-rm
 
-(
+(%r
+  if (^r ^as-x64-modes assoc-ref 0 eq) (
+    ^r swap 138 as-x64-build
+  ) endif
 
+  if (^r ^as-x64-modes assoc-ref 1 eq) (
+    ^r swap 139 as-x64-build join
+  ) endif
+
+  if (^r ^as-x64-modes assoc-ref 2 eq) (
+    ^r swap 139 as-x64-build
+  ) endif
+
+  if (^r ^as-x64-modes assoc-ref 3 eq) (
+    ^r swap 139 as-x64-build
+  ) endif
+
+  if (^r ^as-x64-modes assoc-ref 4 eq) (
+    ^r swap 138 as-x64-build
+  ) endif
+
+  join
 ) $as-x64-mov-mr
 
-(
+(%r
+  if (^r ^as-x64-modes assoc-ref 0 eq) (
+    ^r swap 136 as-x64-build
+  ) endif
 
+  if (^r ^as-x64-modes assoc-ref 1 eq) (
+    ^r swap 137 as-x64-build join
+  ) endif
+
+  if (^r ^as-x64-modes assoc-ref 2 eq) (
+    ^r swap 137 as-x64-build
+  ) endif
+
+  if (^r ^as-x64-modes assoc-ref 3 eq) (
+    ^r swap 137 as-x64-build
+  ) endif
+
+  if (^r ^as-x64-modes assoc-ref 4 eq) (
+    ^r swap 136 as-x64-build
+  ) endif
+
+  join
 ) $as-x64-mov-rm
 
 (
