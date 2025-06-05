@@ -377,7 +377,12 @@ obj_t *find_env(obj_t *env, obj_t *key) {
         env = ucdr(env);
     }
 
-    error("cannot find in env");
+    fprintf(stderr, "FATAL ERROR: cannot find in env: ");
+    for (size_t i = 0; i < key->len; i++) {
+        fputc(key->data[i], stderr);
+    }
+    fputc('\n', stderr);
+    abort();
 }
 
 obj_t *put_env(obj_t *env, obj_t *key, obj_t *val) {

@@ -402,9 +402,42 @@
 ) $as-x64-mov-ri
 
 (
-
+  TODO
 ) $as-x64-mov-ma
 
 (
-
+  TODO
 ) $as-x64-mov-am
+
+156 as-1const $as-x64-pushf
+157 as-1const $as-x64-popf
+
+(%v
+  if (^v as-disp8?) (
+    106 nb>b ^v nb>b join
+  ) else (
+    if (^v as-disp16?) (
+      102 nb>b 104 nb>b join ^v nw>b join
+    ) else (
+      104 nb>b ^v nd>b join
+    ) endif
+  ) endif
+
+  join
+) $as-x64-push-i
+
+(
+
+) $as-x64-push-m
+
+(
+
+) $as-x64-pop-m
+
+(
+  'r as-x64-push-m
+) $as-x64-push-r
+
+(
+  'r as-x64-pop-m
+) $as-x64-pop-r
