@@ -46,6 +46,7 @@ uint8_t boot_blob[] = {
 #define FLAG_REACHED 0x01
 #define FLAG_NO_FREE 0x02
 #define FLAG_PERSIST 0x04
+#define FLAG_HIT 0x08
 
 typedef struct obj obj_t;
 typedef struct state state_t;
@@ -997,6 +998,7 @@ void eval(obj_t *expr, obj_t **env) {
         obj_t *val = find_env(*env, expr);
 
         if (IS_ENV(val)) {
+            val->flags |= FLAG_HIT;
             compute(val->first, val->second);
         } else if (IS_PRIM(val)) {
             val->func(env, state);
