@@ -343,30 +343,6 @@
 
 (%r
   if (^r ^as-x64-modes assoc-ref 0 eq) (
-    ^r swap 138 as-x64-build
-  ) endif
-
-  if (^r ^as-x64-modes assoc-ref 1 eq) (
-    ^r swap 139 as-x64-build join
-  ) endif
-
-  if (^r ^as-x64-modes assoc-ref 2 eq) (
-    ^r swap 139 as-x64-build
-  ) endif
-
-  if (^r ^as-x64-modes assoc-ref 3 eq) (
-    ^r swap 139 as-x64-build
-  ) endif
-
-  if (^r ^as-x64-modes assoc-ref 4 eq) (
-    ^r swap 138 as-x64-build
-  ) endif
-
-  join
-) $as-x64-mov-mr
-
-(%r
-  if (^r ^as-x64-modes assoc-ref 0 eq) (
     ^r swap 136 as-x64-build
   ) endif
 
@@ -387,8 +363,48 @@
   ) endif
 
   join
+) $as-x64-mov-mr
+
+(%r
+  if (^r ^as-x64-modes assoc-ref 0 eq) (
+    ^r swap 138 as-x64-build
+  ) endif
+
+  if (^r ^as-x64-modes assoc-ref 1 eq) (
+    ^r swap 139 as-x64-build join
+  ) endif
+
+  if (^r ^as-x64-modes assoc-ref 2 eq) (
+    ^r swap 139 as-x64-build
+  ) endif
+
+  if (^r ^as-x64-modes assoc-ref 3 eq) (
+    ^r swap 139 as-x64-build
+  ) endif
+
+  if (^r ^as-x64-modes assoc-ref 4 eq) (
+    ^r swap 138 as-x64-build
+  ) endif
+
+  join
 ) $as-x64-mov-rm
+
+(%r %mode %i
+  if (^mode 'r eq) (
+    
+  ) else (
+
+  ) endif
+) $as-x64-mov-mi
+
+(%r %i
+  ^i 'r ^r as-x64-mov-mi
+) $as-x64-mov-ri
 
 (
 
-) $as-x64-mi
+) $as-x64-mov-ma
+
+(
+
+) $as-x64-mov-am

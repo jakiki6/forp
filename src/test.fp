@@ -48,5 +48,5 @@
 
 0 alloc 99 'rip '[+d] 'al as-x64-add-rm '(2 5 99 0 0 0) test-assertbeq
 
-0 alloc 'rax '[] 'rcx as-x64-mov-rm '(72 137 8) test-assertbeq
-0 alloc 3 'rcx '[+d] 'sil as-x64-mov-mr '(64 138 113 3) test-assertbeq
+0 alloc 'rax '[] 'rcx as-x64-mov-mr '(72 137 8) test-assertbeq
+0 alloc 3 'rcx '[+d] 'sil as-x64-mov-rm '(64 138 113 3) test-assertbeq
