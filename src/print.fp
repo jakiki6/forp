@@ -114,6 +114,6 @@
     ^v o>p 16 print-num
     62 putc
   ) endif
-) rec %print-internal
+) rec %print
 
-(print-internal 10 putc) $print
+(print 10 putc) $println

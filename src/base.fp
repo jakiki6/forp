@@ -242,6 +242,9 @@
 (%n 4 alloc %buf ^n 0 ^buf d! ^buf) $nd>b
 (%n 8 alloc %buf ^n 0 ^buf q! ^buf) $nq>b
 
+(%v ^v o>p 8 + mem q@ p>o) $ucar
+(%v ^v o>p 16 + mem q@ p>o) $ucdr
+
 (%wenv %wcomp
   ; victim object
   () %fn

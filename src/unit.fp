@@ -14,9 +14,9 @@
 (%e %v
   if (^v ^e neq) (
     '(102 97 105 108 44 32 101 120 112 101 99 116 101 100 58 10) sputc
-    ^e print
+    ^e println
     '(103 111 116 58 10) sputc
-    ^v print
+    ^v println
   ) endif
 ) $test-asserteq
 
@@ -60,3 +60,19 @@
     ^v test-putbuf 10 putc
   ) endif
 ) $test-assertbeq
+
+(%self %comp
+  if (^comp o>p 1 + mem @ 8 binary-and not) (
+    '(99 108 111 115 117 114 101 32 110 111 116 32 114 101 97 99 104 101 100 58 32) sputc
+    ^comp println
+  ) else (
+    ^comp (
+      %v
+      if (^v type 3 eq) (
+        ^v self
+      ) endif
+    ) each
+  ) endif
+) rec $test-check-coverage-internal
+
+(ucar test-check-coverage-internal) %test-check-coverage

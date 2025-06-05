@@ -998,7 +998,7 @@ void eval(obj_t *expr, obj_t **env) {
         obj_t *val = find_env(*env, expr);
 
         if (IS_ENV(val)) {
-            val->flags |= FLAG_HIT;
+            val->first->flags |= FLAG_HIT;
             compute(val->first, val->second);
         } else if (IS_PRIM(val)) {
             val->func(env, state);

@@ -50,3 +50,43 @@
 
 0 alloc 'rax '[] 'rcx as-x64-mov-mr '(72 137 8) test-assertbeq
 0 alloc 3 'rcx '[+d] 'sil as-x64-mov-rm '(64 138 113 3) test-assertbeq
+
+;;; coverage
+'(99 111 118 101 114 97 103 101) test-unit
+
+'(
+as-x64-add-ri
+as-x64-add-mi
+as-x64-add-mr
+as-x64-add-rm
+as-x64-sub-ri
+as-x64-sub-mi
+as-x64-sub-mr
+as-x64-sub-rm
+as-x64-and-ri
+as-x64-and-mi
+as-x64-and-mr
+as-x64-and-rm
+as-x64-or-ri
+as-x64-or-mi
+as-x64-or-mr
+as-x64-or-rm
+as-x64-xor-ri
+as-x64-xor-mi
+as-x64-xor-mr
+as-x64-xor-rm
+as-x64-mov-mr
+as-x64-mov-rm
+as-x64-mov-mi
+as-x64-mov-ri
+as-x64-mov-ma
+as-x64-mov-am
+as-x64-push-i
+as-x64-push-m
+as-x64-pop-m
+as-x64-push-r
+as-x64-pop-r
+) (
+  '(61 61 61 32) sputc dup print '(32 61 61 61 10) sputc
+  push test-check-coverage
+) each
