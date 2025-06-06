@@ -95,7 +95,7 @@ struct state {
     int gc_lifetime;
     bool gc;
 };
-state_t *state;
+static state_t *state;
 
 typedef struct obj_arena obj_arena_t;
 struct obj_arena {
@@ -105,9 +105,9 @@ struct obj_arena {
 
     obj_t objs[];
 };
-obj_arena_t *arena_head;
+static obj_arena_t *arena_head;
 
-obj_arena_t *arena_new() {
+static obj_arena_t *arena_new() {
     obj_arena_t *arena = malloc(sizeof(obj_arena_t) + sizeof(obj_t) * ARENA_SIZE);
     arena->next = NULL;
     arena->free = ARENA_SIZE;
@@ -118,7 +118,7 @@ obj_arena_t *arena_new() {
     return arena;
 }
 
-obj_t *arena_alloc() {
+static obj_t *arena_alloc() {
     if (arena_head == NULL) {
         arena_head = arena_new();
     }
@@ -150,7 +150,7 @@ obj_t *arena_alloc() {
     return &head->objs[0];
 }
 
-void arena_free(obj_t *obj) {
+static void arena_free(obj_t *obj) {
     obj_arena_t *head = arena_head;
     while (head) {
         if (head->free < ARENA_SIZE) {
@@ -166,7 +166,7 @@ void arena_free(obj_t *obj) {
     }
 }
 
-void arena_cleanup() {
+static void arena_cleanup() {
     obj_arena_t **next = &arena_head;
     obj_arena_t *head = arena_head;
     size_t empty_count = 0;
@@ -189,7 +189,7 @@ void arena_cleanup() {
     }
 }
 
-void gc_walk(obj_t *o) {
+static void gc_walk(obj_t *o) {
     if (o == NULL || o->flags & FLAG_REACHED)
         return;
 
@@ -204,7 +204,7 @@ void gc_walk(obj_t *o) {
     }
 }
 
-void gc_free(obj_t *o) {
+static void gc_free(obj_t *o) {
     switch (o->type) {
         case TYPE_ATOM:
             free(o->data);
@@ -219,7 +219,7 @@ void gc_free(obj_t *o) {
     arena_free(o);
 }
 
-void gc() {
+static void gc() {
     gc_walk(state->stack);
     gc_walk(state->atoms);
     gc_walk(state->comp_stack);
@@ -257,7 +257,7 @@ void gc() {
     arena_cleanup();
 }
 
-obj_t *alloc() {
+static obj_t *alloc() {
     if (state->gc) {
         if (state->gc_lifetime <= 0) {
             state->gc_lifetime = GC_LIFETIME;
@@ -273,22 +273,22 @@ obj_t *alloc() {
     return o;
 }
 
-obj_t *car(obj_t *o) {
+static inline obj_t *car(obj_t *o) {
     if (!IS_PAIR(o) && !IS_ENV(o))
         error("car not pair");
 
     return o->first;
 }
 
-obj_t *cdr(obj_t *o) {
+static inline obj_t *cdr(obj_t *o) {
     if (!IS_PAIR(o) && !IS_ENV(o))
         error("cdr not pair");
 
     return o->second;
 }
 
-obj_t *mkatom(char *name);
-obj_t *mknil() {
+static obj_t *mkatom(char *name);
+static obj_t *mknil() {
     if (state->nil == NULL) {
         state->nil = mkatom("#f");
     }
@@ -296,8 +296,8 @@ obj_t *mknil() {
     return state->nil;
 }
 
-obj_t *mkpair(obj_t *a, obj_t *b);
-obj_t *mkatom_fixed(char *name, size_t len) {
+static obj_t *mkpair(obj_t *a, obj_t *b);
+static obj_t *mkatom_fixed(char *name, size_t len) {
     obj_t *head = state->atoms;
     while (!IS_NIL(head)) {
         if (IS_ATOM(car(head)) && car(head)->len == len && memcmp(car(head)->data, name, len) == 0)
@@ -314,23 +314,23 @@ obj_t *mkatom_fixed(char *name, size_t len) {
     return o;
 }
 
-obj_t *mkatom(char *name) { return mkatom_fixed(name, strlen(name)); }
+static obj_t *mkatom(char *name) { return mkatom_fixed(name, strlen(name)); }
 
-obj_t *mkint(int64_t num) {
+static obj_t *mkint(int64_t num) {
     obj_t *o = alloc();
     o->type = TYPE_INT;
     o->num = num;
     return o;
 }
 
-obj_t *mkprim(void (*func)(obj_t **env, state_t *state)) {
+static obj_t *mkprim(void (*func)(obj_t **env, state_t *state)) {
     obj_t *o = alloc();
     o->type = TYPE_PRIM;
     o->func = func;
     return o;
 }
 
-obj_t *mkpair(obj_t *a, obj_t *b) {
+static obj_t *mkpair(obj_t *a, obj_t *b) {
     obj_t *o = alloc();
     o->type = TYPE_PAIR;
     o->first = a;
@@ -338,7 +338,7 @@ obj_t *mkpair(obj_t *a, obj_t *b) {
     return o;
 }
 
-obj_t *mkenv(obj_t *body, obj_t *env) {
+static obj_t *mkenv(obj_t *body, obj_t *env) {
     obj_t *o = alloc();
     o->type = TYPE_ENV;
     o->first = body;
@@ -346,7 +346,7 @@ obj_t *mkenv(obj_t *body, obj_t *env) {
     return o;
 }
 
-obj_t *mkbuf(char *buf, size_t len, bool fixed) {
+static obj_t *mkbuf(char *buf, size_t len, bool fixed) {
     obj_t *o = alloc();
     o->type = TYPE_BUF;
     o->len = len;
@@ -355,9 +355,9 @@ obj_t *mkbuf(char *buf, size_t len, bool fixed) {
     return o;
 }
 
-void push(obj_t *o) { state->stack = mkpair(o, state->stack); }
+static inline void push(obj_t *o) { state->stack = mkpair(o, state->stack); }
 
-obj_t *pop() {
+static inline obj_t *pop() {
     if (IS_NIL(state->stack)) {
         error("pop from empty stack");
     }
@@ -367,7 +367,7 @@ obj_t *pop() {
     return tos;
 }
 
-obj_t *find_env(obj_t *env, obj_t *key) {
+static inline obj_t *find_env(obj_t *env, obj_t *key) {
     if (!IS_ATOM(key))
         error("env key isn't atom");
 
@@ -386,7 +386,7 @@ obj_t *find_env(obj_t *env, obj_t *key) {
     abort();
 }
 
-obj_t *put_env(obj_t *env, obj_t *key, obj_t *val) {
+static obj_t *put_env(obj_t *env, obj_t *key, obj_t *val) {
     obj_t *head = env;
     while (!IS_NIL(head)) {
         if (ucar(ucar(head)) == key) {
@@ -400,26 +400,26 @@ obj_t *put_env(obj_t *env, obj_t *key, obj_t *val) {
     return mkpair(mkpair(key, val), env);
 }
 
-void p_push(obj_t **env, state_t *state) {
+static void p_push(obj_t **env, state_t *state) {
     UNUSED(state);
     push(find_env(*env, pop()));
 }
 
-void p_pop(obj_t **env, state_t *state) {
+static void p_pop(obj_t **env, state_t *state) {
     UNUSED(state);
     obj_t *a = pop();
     obj_t *b = pop();
     *env = put_env(*env, a, b);
 }
 
-void p_lpop(obj_t **env, state_t *state) {
+static void p_lpop(obj_t **env, state_t *state) {
     UNUSED(state);
     obj_t *a = pop();
     obj_t *b = pop();
     *env = mkpair(mkpair(a, b), *env);
 }
 
-void p_cons(obj_t **env, state_t *state) {
+static void p_cons(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
 
@@ -428,21 +428,21 @@ void p_cons(obj_t **env, state_t *state) {
     push(mkpair(a, b));
 }
 
-void p_car(obj_t **env, state_t *state) {
+static void p_car(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
 
     push(car(pop()));
 }
 
-void p_cdr(obj_t **env, state_t *state) {
+static void p_cdr(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
 
     push(cdr(pop()));
 }
 
-void p_eq(obj_t **env, state_t *state) {
+static void p_eq(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
 
@@ -475,7 +475,7 @@ f:
     return;
 }
 
-void p_cswap(obj_t **env, state_t *state) {
+static void p_cswap(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
 
@@ -490,14 +490,14 @@ void p_cswap(obj_t **env, state_t *state) {
     }
 }
 
-void p_type(obj_t **env, state_t *state) {
+static void p_type(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
 
     push(mkint(pop()->type));
 }
 
-void p_alloc(obj_t **env, state_t *state) {
+static void p_alloc(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
 
@@ -526,7 +526,7 @@ err:
     push(mknil());
 }
 
-void p_buf_peek(obj_t **env, state_t *state) {
+static void p_buf_peek(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
 
@@ -547,7 +547,7 @@ err:
     push(mkint(0));
 }
 
-void p_buf_poke(obj_t **env, state_t *state) {
+static void p_buf_poke(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
 
@@ -568,14 +568,14 @@ err:
     return;
 }
 
-void p_o2p(obj_t **env, state_t *state) {
+static void p_o2p(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
 
     push(mkint((uint64_t) pop()));
 }
 
-void p_p2o(obj_t **env, state_t *state) {
+static void p_p2o(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
 
@@ -591,7 +591,7 @@ err:
     push(mknil());
 }
 
-void p_buf_size(obj_t **env, state_t *state) {
+static void p_buf_size(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
 
@@ -606,7 +606,7 @@ err:
     return;
 }
 
-void p_p2b(obj_t **env, state_t *state) {
+static void p_p2b(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
 
@@ -623,7 +623,7 @@ err:
     push(mknil());
 }
 
-void p_b2p(obj_t **env, state_t *state) {
+static void p_b2p(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
 
@@ -639,20 +639,20 @@ err:
     push(mknil());
 }
 
-void p_env(obj_t **env, state_t *state) {
+static void p_env(obj_t **env, state_t *state) {
     UNUSED(state);
 
     push(*env);
 }
 
-void p_stack(obj_t **env, state_t *state) {
+static void p_stack(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
 
     push(state->stack);
 }
 
-void p_add(obj_t **env, state_t *state) {
+static void p_add(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
 
@@ -669,7 +669,7 @@ err:
     push(mknil());
 }
 
-void p_sub(obj_t **env, state_t *state) {
+static void p_sub(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
 
@@ -686,7 +686,7 @@ err:
     push(mknil());
 }
 
-void p_mul(obj_t **env, state_t *state) {
+static void p_mul(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
 
@@ -703,7 +703,7 @@ err:
     push(mknil());
 }
 
-void p_div(obj_t **env, state_t *state) {
+static void p_div(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
 
@@ -720,7 +720,7 @@ err:
     push(mknil());
 }
 
-void p_mod(obj_t **env, state_t *state) {
+static void p_mod(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
 
@@ -737,7 +737,7 @@ err:
     push(mknil());
 }
 
-void p_umul(obj_t **env, state_t *state) {
+static void p_umul(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
 
@@ -754,7 +754,7 @@ err:
     push(mknil());
 }
 
-void p_udiv(obj_t **env, state_t *state) {
+static void p_udiv(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
 
@@ -771,7 +771,7 @@ err:
     push(mknil());
 }
 
-void p_nand(obj_t **env, state_t *state) {
+static void p_nand(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
 
@@ -788,7 +788,7 @@ err:
     push(mknil());
 }
 
-void p_lshift(obj_t **env, state_t *state) {
+static void p_lshift(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
 
@@ -805,7 +805,7 @@ err:
     push(mknil());
 }
 
-void p_rshift(obj_t **env, state_t *state) {
+static void p_rshift(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
 
@@ -822,7 +822,7 @@ err:
     push(mknil());
 }
 
-void p_gc(obj_t **env, state_t *state) {
+static void p_gc(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
 
@@ -830,8 +830,8 @@ void p_gc(obj_t **env, state_t *state) {
     gc();
 }
 
-void compute(obj_t *comp, obj_t *env);
-void p_rep(obj_t **env, state_t *state) {
+static void compute(obj_t *comp, obj_t *env);
+static void p_rep(obj_t **env, state_t *state) {
     UNUSED(env);
     UNUSED(state);
 
@@ -855,10 +855,10 @@ exit:
     fn->flags &= ~FLAG_PERSIST;
 }
 
-char *boot = (char *) &boot_blob;
-obj_t *boot_stack;
+static char *boot = (char *) &boot_blob;
+static obj_t *boot_stack;
 
-void skip(void) {
+static void skip(void) {
     while (true) {
         while (*boot == ' ' || *boot == '\t' || *boot == '\n') {
             boot++;
@@ -874,8 +874,8 @@ void skip(void) {
     }
 }
 
-obj_t *read(void);
-obj_t *read_list(void) {
+static obj_t *read(void);
+static obj_t *read_list(void) {
     if (!boot_stack) {
         skip();
         if (*boot == ')') {
@@ -888,7 +888,7 @@ obj_t *read_list(void) {
     return mkpair(first, second);
 }
 
-obj_t *read_scalar(void) {
+static obj_t *read_scalar(void) {
     char *start = boot;
     size_t len = 0;
     while (!(*boot == ' ' || *boot == '\t' || *boot == '\n' || *boot == '\'' || *boot == '^' || *boot == '$' || *boot == '%' ||
@@ -919,7 +919,7 @@ obj_t *read_scalar(void) {
     }
 }
 
-obj_t *read(void) {
+static obj_t *read(void) {
     if (boot_stack) {
         obj_t *top = car(boot_stack);
         boot_stack = cdr(boot_stack);
@@ -963,8 +963,8 @@ obj_t *read(void) {
     }
 }
 
-void eval(obj_t *expr, obj_t **env);
-void compute(obj_t *comp, obj_t *env) {
+static void eval(obj_t *expr, obj_t **env);
+static void compute(obj_t *comp, obj_t *env) {
     state->env_stack = mkpair(mkint((int64_t) &env), state->env_stack);
     state->comp_stack = mkpair(comp, state->comp_stack);
 
@@ -988,8 +988,7 @@ void compute(obj_t *comp, obj_t *env) {
     state->env_stack = cdr(state->env_stack);
     state->comp_stack = cdr(state->comp_stack);
 }
-
-void eval(obj_t *expr, obj_t **env) {
+static void eval(obj_t *expr, obj_t **env) {
     state->gc = false;
 
     if (IS_NIL(expr) || IS_PAIR(expr)) {
@@ -1010,7 +1009,7 @@ void eval(obj_t *expr, obj_t **env) {
     }
 }
 
-obj_t *initial_env() {
+static obj_t *initial_env() {
     state = malloc(sizeof(state_t));
     memset(state, 0, sizeof(state_t));
 
@@ -1052,7 +1051,7 @@ obj_t *initial_env() {
     env = put_env(env, mkatom("*"), mkprim(&p_mul));
     env = put_env(env, mkatom("/"), mkprim(&p_div));
     env = put_env(env, mkatom("mod"), mkprim(&p_mod));
-    env = put_env(env, mkatom("u*"), mkprim(&p_mul));
+    env = put_env(env, mkatom("u*"), mkprim(&p_umul));
     env = put_env(env, mkatom("u/"), mkprim(&p_udiv));
     env = put_env(env, mkatom("nand"), mkprim(&p_nand));
     env = put_env(env, mkatom("<<"), mkprim(&p_lshift));
