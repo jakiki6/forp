@@ -84,6 +84,7 @@ struct state {
     obj_t *nil;
     obj_t *t;
     obj_t *(*alloc)();
+    uint64_t exit_levels;
 
     obj_t *atoms;
     obj_t *env_stack;
@@ -855,6 +856,16 @@ exit:
     fn->flags &= ~FLAG_PERSIST;
 }
 
+static void p_exit(obj_t **env, state_t *state) {
+    UNUSED(env);
+
+    obj_t *a = pop();
+
+    if (IS_INT(a)) {
+        state->exit_levels = a->unum;
+    }
+}
+
 static char *boot = (char *) &boot_blob;
 static obj_t *boot_stack;
 
@@ -969,6 +980,11 @@ static void compute(obj_t *comp, obj_t *env) {
     state->comp_stack = mkpair(comp, state->comp_stack);
 
     while (!IS_NIL(comp)) {
+        if (state->exit_levels) {
+            state->exit_levels--;
+            break;
+        }
+
         state->gc = true;
 
         obj_t *cmd = car(comp);
@@ -1025,6 +1041,7 @@ static obj_t *initial_env() {
     state->lpop = mkatom("lpop");
 
     state->alloc = &alloc;
+    state->exit_levels = 0;
 
     obj_t *env = mknil();
     env = put_env(env, mkatom("push"), mkprim(&p_push));
@@ -1058,6 +1075,7 @@ static obj_t *initial_env() {
     env = put_env(env, mkatom(">>"), mkprim(&p_rshift));
     env = put_env(env, mkatom("gc"), mkprim(&p_gc));
     env = put_env(env, mkatom("rep"), mkprim(&p_rep));
+    env = put_env(env, mkatom("exit"), mkprim(&p_exit));
 
     env = put_env(env, mkatom("#t"), state->t);
     env = put_env(env, mkatom("#f"), state->nil);

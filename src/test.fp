@@ -25,6 +25,10 @@
 18446744069414584320 9 umod 3 test-asserteq
 9223372036854775877 4611686018427387904 umod 69 test-asserteq
 
+;;; internals
+
+(1 1 exit drop 0) force test-assert
+
 ;;; x64 assembler
 '(120 54 52 32 97 115 115 101 109 98 108 101 114) test-unit
 
@@ -52,6 +56,7 @@
 0 alloc 3 'rcx '[+d] 'sil as-x64-mov-rm '(64 138 113 3) test-assertbeq
 
 ;;; coverage
+1 exit
 '(99 111 118 101 114 97 103 101) test-unit
 
 '(
