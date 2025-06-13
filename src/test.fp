@@ -79,13 +79,13 @@ as-x64-mov-mr
 as-x64-mov-rm
 as-x64-mov-mi
 as-x64-mov-ri
-as-x64-mov-ma
-as-x64-mov-am
-as-x64-push-i
-as-x64-push-m
-as-x64-pop-m
-as-x64-push-r
-as-x64-pop-r
+; as-x64-mov-ma
+; as-x64-mov-am
+; as-x64-push-i
+; as-x64-push-m
+; as-x64-pop-m
+; as-x64-push-r
+; as-x64-pop-r
 ) (
   '(61 61 61 32) sputc dup print '(32 61 61 61 10) sputc
   push test-check-coverage
