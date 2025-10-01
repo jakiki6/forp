@@ -1,5 +1,5 @@
 as-begin
-  86 nb>b join                  ; push rsi
+  'rsi as-x64-push-r
   'rsi '[] 'rsi as-x64-mov-rm
   8 'rsi '[+d] 'rsi as-x64-mov-rm
   8 'rsi as-x64-add-ri
@@ -9,7 +9,7 @@ as-begin
   'rdx 'r 'rdx as-x64-xor-rm
   1 'rdx as-x64-add-ri
   as-x64-syscall
-  89 nb>b join                  ; pop rcx
+  'rcx as-x64-pop-r
   'rcx '[] 'rdi as-x64-mov-rm
   16 'rdi '[+d] 'rdi as-x64-mov-rm
   'rcx '[] 'rdi as-x64-mov-mr

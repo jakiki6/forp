@@ -427,17 +427,17 @@
 ) $as-x64-push-i
 
 (
-
+  swap 255 as-x64-build
 ) $as-x64-push-m
 
 (
-
+  swap 143 as-x64-build
 ) $as-x64-pop-m
 
 (
-  'r as-x64-push-m
+  ^as-x64-registers assoc-ref 80 + nb>b join
 ) $as-x64-push-r
 
 (
-  'r as-x64-pop-m
+  ^as-x64-registers assoc-ref 88 + nb>b join
 ) $as-x64-pop-r
